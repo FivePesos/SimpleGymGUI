@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+
 public class GymLogPage implements ActionListener{
     public boolean registerCall = false;
     JTextField textFieldUsername;
