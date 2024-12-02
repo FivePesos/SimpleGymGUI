@@ -2,7 +2,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.*;
 
 public class RegisterPage extends JFrame implements ActionListener{
@@ -23,12 +24,30 @@ public class RegisterPage extends JFrame implements ActionListener{
         textFieldPassword = new JPasswordField();
         message = new JLabel();
         
+        
         message.setForeground(new Color(255, 0, 0));
         username.setText("Username");
         password.setText("Password");
         register.setText("Register");
         cancel.setText("Cancel");
 
+        textFieldUsername.addKeyListener(new KeyAdapter(){
+            @Override
+            public void keyTyped(KeyEvent e){
+                if(e.getKeyChar() == ' ')
+                 e.consume();
+            }
+        });
+
+        textFieldPassword.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e){
+                if(e.getKeyChar() == ' '){
+                    e.consume();
+                }
+            }
+        });
+        
         message.setBounds(100, 200,  500, 30);
         username.setBounds(100, 100, 80, 30);   
         textFieldUsername.setBounds(200, 100, 200, 30);
@@ -50,7 +69,7 @@ public class RegisterPage extends JFrame implements ActionListener{
         add(textFieldUsername);
 
         setUndecorated(true);
-        setSize(500,500);
+        setSize(785,500);
         setLayout(null);
         setLocationRelativeTo(null);
         getContentPane().setBackground(new Color(179, 173, 173));
@@ -101,8 +120,8 @@ public class RegisterPage extends JFrame implements ActionListener{
 
                         try{
 
-                            BufferedWriter userWriter = new BufferedWriter(new FileWriter(fileUsername));
-                            BufferedWriter passwordWriter = new BufferedWriter(new FileWriter(filePassword));
+                            BufferedWriter userWriter = new BufferedWriter(new FileWriter(fileUsername ,true));
+                            BufferedWriter passwordWriter = new BufferedWriter(new FileWriter(filePassword , true));
                             
                             userWriter.write(username + "\n");
                             passwordWriter.write(password + "\n");
