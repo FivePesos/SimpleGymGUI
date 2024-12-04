@@ -2,6 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.geom.RoundRectangle2D.Float;
 import java.io.*;
 
 public class GymLogPage implements ActionListener {
@@ -274,7 +275,7 @@ class RoundedButton extends JButton{
     @Override
     public boolean contains(int x, int y) {
         // Ensure that mouse events are correctly recognized within the rounded corners
-        Shape shape = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
+        Float shape = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
         return shape.contains(x, y);
     } 
 }

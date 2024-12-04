@@ -1,35 +1,49 @@
+import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
+import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
 import java.io.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+
 import javax.swing.*;
 
 public class RegisterPage extends JFrame implements ActionListener{
-    JButton cancel; 
-    JButton register;
+    RoundedButton cancel; 
+    RoundedButton register;
+    JTextField textFieldFullName;
     JTextField textFieldUsername;
     JPasswordField textFieldPassword;
+    JLabel title;
     JLabel message;
+    JLabel name;
+
     protected String username, password;
 
     public RegisterPage(){
       
-        register = new JButton();
-        cancel = new JButton();
+        register = new RoundedButton("REGISTER");
+        cancel = new RoundedButton("CANCEL");
         JLabel username = new JLabel();
         JLabel password = new JLabel();
-        textFieldUsername = new JTextField();
-        textFieldPassword = new JPasswordField();
+        textFieldUsername = new JTextField("USERNAME");
+        textFieldPassword = new JPasswordField("SET PASSWORD");
+        textFieldFullName = new JTextField("SET FULL NAME");
+        name = new JLabel();
         message = new JLabel();
         
-        
         message.setForeground(new Color(255, 0, 0));
-        username.setText("Username");
-        password.setText("Password");
-        register.setText("Register");
-        cancel.setText("Cancel");
+        username.setText("USERNAME");
+        password.setText("PASSWORD");
+        register.setText("REGISTER");
+        name.setText("NAME");
+        cancel.setText("CANCEL");
+
+        
 
         textFieldUsername.addKeyListener(new KeyAdapter(){
             @Override
@@ -48,18 +62,124 @@ public class RegisterPage extends JFrame implements ActionListener{
             }
         });
         
-        message.setBounds(100, 200,  500, 30);
-        username.setBounds(100, 100, 80, 30);   
-        textFieldUsername.setBounds(200, 100, 200, 30);
-        password.setBounds(100, 150, 80, 30);
-        textFieldPassword.setBounds(200, 150, 200, 30);
-        register.setBounds(150, 300, 100, 30);
-        cancel.setBounds(260, 300, 100, 30);    
+        
+        try {
+            Font montserrat;
+            montserrat = Font.createFont(Font.TRUETYPE_FONT, new File("Resources\\Montserrat\\static\\Montserrat-Bold.ttf")).deriveFont(18f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(montserrat);
+            // Title Label
+            title = new JLabel("REGISTER");
+            title.setFont(montserrat.deriveFont(Font.BOLD, 48));
+            title.setBounds(266,52,253,50);
+        } catch (FontFormatException | IOException e) {
+            System.out.println(e.getMessage());
+        }
 
+        try {
+            Font montserrat;
+            montserrat = Font.createFont(Font.TRUETYPE_FONT, new File("Resources\\Montserrat\\static\\Montserrat-Thin.ttf")).deriveFont(18f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(montserrat);
+            // Title Label
+            name.setFont(montserrat.deriveFont(Font.BOLD, 13));
+            username.setFont(montserrat.deriveFont(Font.BOLD, 13));
+            password.setFont(montserrat.deriveFont(Font.BOLD, 13));
+        } catch (FontFormatException | IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        textFieldPassword.setEchoChar((char) 0); // No echo char for placeholder
+        textFieldPassword.setText("PASSWORD"); // Initial placeholder text
+
+        textFieldPassword.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (String.valueOf(textFieldPassword.getPassword()).equals("PASSWORD")) {
+                    textFieldPassword.setText(""); // Clear placeholder
+                    textFieldPassword.setForeground(Color.BLACK);
+                    textFieldPassword.setEchoChar('*'); // Restore echo char
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (String.valueOf(textFieldPassword.getPassword()).isEmpty()) {
+                    textFieldPassword.setEchoChar((char) 0); // Hide characters again
+                    textFieldPassword.setText("PASSWORD"); // Reset placeholder
+                    textFieldPassword.setForeground(Color.GRAY); // Placeholder color
+                }
+            }
+        });
+
+        try {
+            Font montserrat;
+            montserrat = Font.createFont(Font.TRUETYPE_FONT, new File("Resources\\Montserrat\\static\\Montserrat-Thin.ttf")).deriveFont(13f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(montserrat); 
+
+            textFieldUsername.setFont(montserrat.deriveFont(13));
+
+            textFieldUsername.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    if (textFieldUsername.getText().equals("USERNAME")) {
+                        textFieldUsername.setText("");
+                        textFieldUsername.setForeground(Color.BLACK); // Set text color to black for user input
+                    }
+                }
+            
+                @Override
+                public void focusLost(FocusEvent e) {
+                    if (textFieldUsername.getText().isEmpty()) {
+                        textFieldUsername.setText("USERNAME");
+                        textFieldUsername.setForeground(Color.GRAY); // Placeholder text color
+                    }
+                }
+            });
+            
+            textFieldFullName.setFont(montserrat.deriveFont(13));
+
+            textFieldFullName.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    if (textFieldFullName.getText().equals("SET FULL NAME")) {
+                        textFieldFullName.setText("");
+                        textFieldFullName.setForeground(Color.BLACK); // Set text color to black for user input
+                    }
+                }
+            
+                @Override
+                public void focusLost(FocusEvent e) {
+                    if (textFieldFullName.getText().isEmpty()) {
+                        textFieldFullName.setText("SET FULL NAME");
+                        textFieldFullName.setForeground(Color.GRAY); // Placeholder text color
+                    }
+                }
+            });
+
+         
+            textFieldPassword.setFont(montserrat);
+
+        } catch (Exception e) {
+            System.out.println("Error: Could not load Montserrat font.");
+        }
+
+        textFieldFullName.setBounds(272,162,241,21);
+        name.setBounds(282,133,50,13);
+        message.setBounds(100, 200,  500, 30);
+        username.setBounds(282, 204, 78, 13);   
+        textFieldUsername.setBounds(272, 234, 241, 21);
+        password.setBounds(280, 276, 78, 13);
+        textFieldPassword.setBounds(272, 306, 241, 21);
+        register.setBounds(119, 389, 241, 45);
+        cancel.setBounds(407, 389, 241, 45);    
 
         cancel.addActionListener(this);
         register.addActionListener(this);
 
+        add(title);
+        add(textFieldFullName);
         add(message);
         add(textFieldPassword);
         add(register);
@@ -67,12 +187,13 @@ public class RegisterPage extends JFrame implements ActionListener{
         add(username);
         add(password);
         add(textFieldUsername);
-
+        add(name);
+        
         setUndecorated(true);
         setSize(785,500);
         setLayout(null);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(new Color(179, 173, 173));
+        getContentPane().setBackground(new Color(255,255,255));
         setVisible(true);
         
     }
@@ -146,6 +267,28 @@ public class RegisterPage extends JFrame implements ActionListener{
         }
     }
 
+    //Checks if the Full name exist already in the fullname.txt
+    private static boolean fullNameExist(String fullName){
+        boolean match = false;
+        File fileFullName = new File("fullname.txt");
+        try{
+            BufferedReader reader = new BufferedReader(new FileReader(fileFullName));
+            String currentLine;
+            while((currentLine = reader.readLine()) != null){
+                if(currentLine.equals(fullName)){
+                    match = true;
+                    break;
+                }else{
+                    match = false;
+                }
+            }
+            reader.close();
+        }catch (Exception e) {
+            return false;
+        }
+        return match;
+    }
+
     //Checks if the username exist already in the username.txt
     private static boolean usernameExist(String username){
         boolean match = false;
@@ -189,4 +332,89 @@ public class RegisterPage extends JFrame implements ActionListener{
         }
         return match;
     }
+}
+
+class RoundedButton extends JButton{
+
+    private int cornerRadius = 10; 
+    private Color borderColor = new Color(17, 13, 13); 
+    private int borderWidth = 3; 
+    private Font montserratFont; 
+
+    
+    public RoundedButton(String text) {
+        super(text);
+        setFocusPainted(false);  // Remove the focus border when clicked
+        setContentAreaFilled(false);  // Remove default button background
+        setOpaque(false);  // Make the button transparent
+
+        // Load Montserrat font
+        try {
+            montserratFont = Font.createFont(Font.TRUETYPE_FONT, new File("Resources\\Montserrat\\static\\Montserrat-SemiBold.ttf"));
+            montserratFont = montserratFont.deriveFont(Font.PLAIN, 16); // Set size to 16 (or your preferred size)
+            setFont(montserratFont); // Apply the font to the button
+        } catch (FontFormatException | IOException e) {
+            System.out.println("Error: Could not load Montserrat font.");
+            // Fallback to the default font if Montserrat is not available
+            setFont(new Font("Arial", Font.PLAIN, 16));
+        }
+
+        addMouseListener(new MouseAdapter() {
+            
+        
+            @Override
+            public void mousePressed(MouseEvent me) {
+                // Click: Set foreground to white and background to black
+                setForeground(new Color(255, 255, 255));
+                setBackground(new Color(0, 0, 0));
+            }
+        
+            @Override
+            public void mouseReleased(MouseEvent me) {
+                // Release click: Set foreground to black and background to white
+                setForeground(new Color(0, 0, 0));
+                setBackground(new Color(255, 255, 255));
+            }
+        });
+        
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);  // Smooth edges
+
+        // Clip the area to a rounded rectangle to ensure the corners are properly rounded
+        g2d.setClip(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius));
+
+        // Paint the button's background
+        if (getModel().isPressed()) {
+            g2d.setColor(new Color(0, 0, 0)); // Color when the button is pressed (black)
+        } else {
+            g2d.setColor(new Color(255, 255, 255)); // Normal button color (white)
+        }
+        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius); // Draw the button with rounded corners
+
+        // Draw the border
+        g2d.setColor(borderColor); // Set border color
+        g2d.setStroke(new BasicStroke(borderWidth)); // Set the border width
+        g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, cornerRadius, cornerRadius); // Draw the border
+
+        // Set the text color to black by default
+        if (getModel().isPressed()) {
+            g2d.setColor(Color.WHITE); // Text color when pressed (white)
+        } else {
+            g2d.setColor(Color.BLACK); // Text color when not pressed (black)
+        }
+
+        // Paint the text with the appropriate color
+        super.paintComponent(g);  // Paint the text on top of the rounded shape
+    }
+
+    @Override
+    public boolean contains(int x, int y) {
+        // Ensure that mouse events are correctly recognized within the rounded corners
+        RoundRectangle2D.Float shape = new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
+        return shape.contains(x, y);
+    } 
 }
