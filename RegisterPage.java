@@ -13,30 +13,36 @@ import java.io.*;
 import javax.swing.*;
 
 public class RegisterPage extends JFrame implements ActionListener{
-    RoundedButton cancel; 
-    RoundedButton register;
+    RoundedButtonRegister cancel; 
+    RoundedButtonRegister register;
     JTextField textFieldFullName;
     JTextField textFieldUsername;
     JPasswordField textFieldPassword;
     JLabel title;
-    JLabel message;
+    JLabel messageFullName;
+    JLabel messageUserName;
+    JLabel messagePassword;
     JLabel name;
 
     protected String username, password;
 
     public RegisterPage(){
       
-        register = new RoundedButton("REGISTER");
-        cancel = new RoundedButton("CANCEL");
+        register = new RoundedButtonRegister("REGISTER");
+        cancel = new RoundedButtonRegister("CANCEL");
         JLabel username = new JLabel();
         JLabel password = new JLabel();
         textFieldUsername = new JTextField("USERNAME");
         textFieldPassword = new JPasswordField("SET PASSWORD");
         textFieldFullName = new JTextField("SET FULL NAME");
         name = new JLabel();
-        message = new JLabel();
-        
-        message.setForeground(new Color(255, 0, 0));
+        messagePassword = new JLabel("");
+        messageUserName = new JLabel("");
+        messageFullName = new JLabel("");
+
+        messagePassword.setForeground(new Color(255, 0, 0));
+        messageUserName.setForeground(new Color(255, 0, 0));
+        messageFullName.setForeground(new Color(255, 0, 0));
         username.setText("USERNAME");
         password.setText("PASSWORD");
         register.setText("REGISTER");
@@ -85,6 +91,9 @@ public class RegisterPage extends JFrame implements ActionListener{
             name.setFont(montserrat.deriveFont(Font.BOLD, 13));
             username.setFont(montserrat.deriveFont(Font.BOLD, 13));
             password.setFont(montserrat.deriveFont(Font.BOLD, 13));
+            messageUserName.setFont(montserrat.deriveFont(Font.BOLD, 13));
+            messagePassword.setFont(montserrat.deriveFont(Font.BOLD, 13));
+            messageFullName.setFont(montserrat.deriveFont(Font.BOLD, 13));
         } catch (FontFormatException | IOException e) {
             System.out.println(e.getMessage());
         }
@@ -120,40 +129,58 @@ public class RegisterPage extends JFrame implements ActionListener{
 
             textFieldUsername.setFont(montserrat.deriveFont(13));
 
-            textFieldUsername.addFocusListener(new FocusAdapter() {
+            textFieldUsername.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    String text = textFieldUsername.getText();
+                    if (text.isEmpty() || text.equalsIgnoreCase("USERNAME")) {
+                        textFieldUsername.setFont(montserrat); // Default font
+                    }  else {
+                        textFieldUsername.setFont(montserrat.deriveFont(Font.BOLD, 13)); 
+                    }
+                }
+            });
+
+            textFieldUsername.addFocusListener(new FocusListener() {
                 @Override
                 public void focusGained(FocusEvent e) {
                     if (textFieldUsername.getText().equals("USERNAME")) {
                         textFieldUsername.setText("");
-                        textFieldUsername.setForeground(Color.BLACK); // Set text color to black for user input
                     }
                 }
-            
                 @Override
                 public void focusLost(FocusEvent e) {
-                    if (textFieldUsername.getText().isEmpty()) {
+                    if (textFieldUsername.getText().isEmpty() || textFieldUsername.getText().equalsIgnoreCase("USERNAME")) {
                         textFieldUsername.setText("USERNAME");
-                        textFieldUsername.setForeground(Color.GRAY); // Placeholder text color
                     }
                 }
             });
             
             textFieldFullName.setFont(montserrat.deriveFont(13));
 
-            textFieldFullName.addFocusListener(new FocusAdapter() {
+            textFieldFullName.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    String text = textFieldFullName.getText();
+                    if (text.isEmpty() || text.equalsIgnoreCase("SET FULL NAME")) {
+                        textFieldFullName.setFont(montserrat); // Default font
+                    }  else {
+                        textFieldFullName.setFont(montserrat.deriveFont(Font.BOLD, 13)); 
+                    }
+                }
+            });
+
+            textFieldFullName.addFocusListener(new FocusListener() {
                 @Override
                 public void focusGained(FocusEvent e) {
                     if (textFieldFullName.getText().equals("SET FULL NAME")) {
                         textFieldFullName.setText("");
-                        textFieldFullName.setForeground(Color.BLACK); // Set text color to black for user input
                     }
                 }
-            
                 @Override
                 public void focusLost(FocusEvent e) {
-                    if (textFieldFullName.getText().isEmpty()) {
+                    if (textFieldFullName.getText().isEmpty() || textFieldFullName.getText().equalsIgnoreCase("USERNAME")) {
                         textFieldFullName.setText("SET FULL NAME");
-                        textFieldFullName.setForeground(Color.GRAY); // Placeholder text color
                     }
                 }
             });
@@ -167,7 +194,9 @@ public class RegisterPage extends JFrame implements ActionListener{
 
         textFieldFullName.setBounds(272,162,241,21);
         name.setBounds(282,133,50,13);
-        message.setBounds(100, 200,  500, 30);
+        messageFullName.setBounds(548,159,500,30);
+        messageUserName.setBounds(548,230,500,30);
+        messagePassword.setBounds(548, 300,  500, 30);
         username.setBounds(282, 204, 78, 13);   
         textFieldUsername.setBounds(272, 234, 241, 21);
         password.setBounds(280, 276, 78, 13);
@@ -180,7 +209,9 @@ public class RegisterPage extends JFrame implements ActionListener{
 
         add(title);
         add(textFieldFullName);
-        add(message);
+        add(messagePassword);
+        add(messageFullName);
+        add(messageUserName);
         add(textFieldPassword);
         add(register);
         add(cancel);
@@ -202,68 +233,114 @@ public class RegisterPage extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == cancel){
             dispose();
-            GymLogPage gymLogPage = new GymLogPage();
+            new GymLogPage();
         }
         
         if(e.getSource() == register){
-            if(textFieldUsername.getText().isEmpty() && String.valueOf(textFieldPassword.getPassword()).isEmpty())
-                message.setText("Note: No Username and Password");
-            else if(textFieldUsername.getText().isEmpty())
-                message.setText("Note: No Username");
-            else if(String.valueOf(textFieldPassword.getPassword()).isEmpty())
-                message.setText("Note: No Password");
-            else{
-                username = textFieldUsername.getText();
-                password = String.valueOf(textFieldPassword.getPassword());
+            boolean validatedFullName = false;
+            boolean validatedUsername = false;
+            boolean validatedPassword = false;
+            String tempFullName = textFieldFullName.getText().trim();
+            String tempUserName = textFieldUsername.getText().trim();
+            String tempPassword = String.valueOf(textFieldPassword.getPassword()).trim();
 
-                if(username.length() <= 6 && password.length() <= 6){
-                    message.setText("Note: Username and Password must have atleast a length of 7");
-                }
-                else if(username.length() <= 6){
-                    message.setText("Note: Username must have atleast a length of 7");
-                }else if(password.length() <= 6){
-                    message.setText("Note: Password must have atleast a length of 7");
-                }else{
+            messageFullName.setText("");
+            messageUserName.setText("");
+            messagePassword.setText("");
 
-                    if(usernameExist(username) && passwordExist(password)){
-                        message.setText("Note: Please enter another username and password");
-                        textFieldUsername.setText("");
-                        textFieldPassword.setText("");
-                    }else if(usernameExist(username)){
-                        message.setText("Note: Please enter another username");
-                        textFieldUsername.setText("");
-                    }else if(passwordExist(password)){
-                        message.setText("Note: Please enter another password");
-                        textFieldPassword.setText("");
-                    }else{
-                        File fileUsername = new File("username.txt");
-                        File filePassword = new File("password.txt");
+            
+            if (tempFullName.isEmpty() || tempFullName.equalsIgnoreCase("SET FULL NAME")) {
+                messageFullName.setText("Please set your full name");
+            } else if (tempFullName.chars().anyMatch(Character::isDigit)) {
+                messageFullName.setText("Names cannot have numbers");
+            } else if (fullNameExist(tempFullName)) {
+                messageFullName.setText("Full name already exists");
+            } else {
+                validatedFullName = true;
+            }
 
-                        try{
+            
+            if (tempUserName.isEmpty() || tempUserName.equalsIgnoreCase("USERNAME")) {
+                messageUserName.setText("Please set a username");
+            } else if (tempUserName.length() < 7) {
+                JOptionPane.showMessageDialog(null, "The username must have 7 or more characters", "ERROR", JOptionPane.ERROR_MESSAGE);
+            } else if (usernameExist(tempUserName)) {
+                messageUserName.setText("Username already exists");
+            } else {
+                validatedUsername = true;
+            }
 
-                            BufferedWriter userWriter = new BufferedWriter(new FileWriter(fileUsername ,true));
-                            BufferedWriter passwordWriter = new BufferedWriter(new FileWriter(filePassword , true));
-                            
-                            userWriter.write(username + "\n");
-                            passwordWriter.write(password + "\n");
+            // Password Validation
+            if (tempPassword.isEmpty() || tempPassword.equalsIgnoreCase("PASSWORD")) {
+                messagePassword.setText("Please set a password");
+            } else if (tempPassword.length() < 7) {
+                JOptionPane.showMessageDialog(null, "The password must have 7 or more characters", "ERROR", JOptionPane.ERROR_MESSAGE);
+            } else if (passwordExist(tempPassword)) {
+                messagePassword.setText("Password already exists");
+            } else {
+                validatedPassword = true;
+            }
 
-                            userWriter.close();
-                            passwordWriter.close();
 
-                        }catch(Exception error){
-                            System.out.println(error.getMessage());
-                        }
-
-                        message.setForeground(new Color(0,255,0));
-                        textFieldUsername.setText("");
-                        textFieldPassword.setText("");
-    
-                        JOptionPane.showMessageDialog(this, "Succefully Registered", "REGISTERED", JOptionPane.INFORMATION_MESSAGE);
-                        dispose();
-                        GymLogPage gymLogPage = new GymLogPage();
-                    }  
+            if(validatedFullName && validatedUsername && validatedPassword){
+                File fileFullName = new File("fullname.txt");
+                File fileUserName = new File("username.txt");
+                File filePassword = new File("password.txt");
+                File fileBalance = new File("balance.txt");
+                File fileActive = new File("active.txt");
+            
+                try{
+                    // Use BufferedWriter to append to the files
+                    BufferedWriter fullnameWriter = new BufferedWriter(new FileWriter(fileFullName, true));
+                    BufferedWriter usernameWriter = new BufferedWriter(new FileWriter(fileUserName, true));
+                    BufferedWriter passwordWriter = new BufferedWriter(new FileWriter(filePassword, true));
+                    BufferedWriter balanceWriter = new BufferedWriter(new FileWriter(fileBalance, true));
+                    BufferedWriter activeWriter = new BufferedWriter(new FileWriter(fileActive, true));
+            
+                    // Check if the file already has data to determine if a new line is needed
+                    boolean firstEntry = fileFullName.length() == 0;
+            
+                    // If it's not the first entry, add a newline before appending new data
+                    if (!firstEntry) {
+                        fullnameWriter.newLine();
+                        usernameWriter.newLine();
+                        passwordWriter.newLine();
+                        balanceWriter.newLine();
+                        activeWriter.newLine();
+                    }
+            
+                    // Write the user data to the files
+                    fullnameWriter.write(tempFullName);
+                    usernameWriter.write(tempUserName);
+                    passwordWriter.write(tempPassword);
+                    balanceWriter.write("0");  // Default balance is 0
+                    activeWriter.write("false");  // Default active status is false
+            
+                    // Close the writers
+                    fullnameWriter.close();
+                    usernameWriter.close();
+                    passwordWriter.close();
+                    balanceWriter.close();
+                    activeWriter.close();
+            
+                    // Show success message
+                    JOptionPane.showMessageDialog(null, "Successfully created account", "SUCCESSFUL", JOptionPane.INFORMATION_MESSAGE);
+            
+                    // After appending, set focus and move cursor to the last character in the file
+                    // There is no direct cursor placement in the file, the file is written to at the end
+                    // Ensure the focus moves to the relevant UI component
+                    textFieldFullName.requestFocus();
+                    textFieldFullName.setCaretPosition(textFieldFullName.getText().length());
+            
+                    // Close registration window and open the login page
+                    dispose();  
+                    new GymLogPage();  
+                } catch(Exception ex){
+                    System.out.println(ex.getMessage());
                 }
             }
+            
+            
         }
     }
 
@@ -331,10 +408,10 @@ public class RegisterPage extends JFrame implements ActionListener{
             return false;
         }
         return match;
-    }
+    }   
 }
 
-class RoundedButton extends JButton{
+class RoundedButtonRegister extends JButton{
 
     private int cornerRadius = 10; 
     private Color borderColor = new Color(17, 13, 13); 
@@ -342,7 +419,7 @@ class RoundedButton extends JButton{
     private Font montserratFont; 
 
     
-    public RoundedButton(String text) {
+    public RoundedButtonRegister(String text) {
         super(text);
         setFocusPainted(false);  // Remove the focus border when clicked
         setContentAreaFilled(false);  // Remove default button background
